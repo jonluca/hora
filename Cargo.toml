@@ -11,7 +11,7 @@ readme = "README.md"
 repository = "https://github.com/jonluca/hora"
 
 categories = ["algorithms", "data-structures"]
-keywords = ["vector", "hnsw", "neighbor", "SIMD", "search", "distance"]
+keywords = ["vector", "hnsw", "SIMD", "search", "distance"]
 
 [package.metadata.docs.rs]
 all-features = true
