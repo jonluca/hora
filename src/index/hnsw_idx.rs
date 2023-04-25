@@ -15,8 +15,7 @@ use std::collections::BinaryHeap;
 
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::fs::File;
-use std::io::Write;
+use std::io::{Read};
 
 use std::sync::RwLock;
 
@@ -639,14 +638,19 @@ impl<E: node::FloatElement, T: node::IdxType> ann_index::ANNIndex<E, T> for HNSW
     fn dimension(&self) -> usize {
         self._dimension
     }
+
+
 }
+
 
 impl<E: node::FloatElement + DeserializeOwned, T: node::IdxType + DeserializeOwned>
     ann_index::SerializableIndex<E, T> for HNSWIndex<E, T>
 {
-    fn load(path: &str) -> Result<Self, &'static str> {
-        let file = File::open(path).unwrap_or_else(|_| panic!("unable to open file {:?}", path));
-        let mut instance: HNSWIndex<E, T> = bincode::deserialize_from(&file).unwrap();
+
+
+    // Utility function that takes a Read trait object
+    fn load_from_reader<R: Read>(mut reader: R) -> Result<Self, &'static str> {
+        let mut instance: HNSWIndex<E, T> = bincode::deserialize_from(&mut reader).unwrap();
         instance._nodes = instance
             ._nodes_tmp
             .iter()
@@ -685,7 +689,7 @@ impl<E: node::FloatElement + DeserializeOwned, T: node::IdxType + DeserializeOwn
         Ok(instance)
     }
 
-    fn dump(&mut self, path: &str) -> Result<(), &'static str> {
+    fn dump_bin(&mut self) -> Result<Vec<u8>, &'static str> {
         self._id2neighbor_tmp = Vec::with_capacity(self._id2neighbor.len());
         for i in 0..self._id2neighbor.len() {
             let mut tmp = Vec::with_capacity(self._id2neighbor[i].len());
@@ -712,9 +716,6 @@ impl<E: node::FloatElement + DeserializeOwned, T: node::IdxType + DeserializeOwn
         }
 
         let encoded_bytes = bincode::serialize(&self).unwrap();
-        let mut file = File::create(path).unwrap();
-        file.write_all(&encoded_bytes)
-            .unwrap_or_else(|_| panic!("unable to write file {:?}", path));
-        Result::Ok(())
+        Result::Ok(encoded_bytes)
     }
 }

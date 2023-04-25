@@ -1,9 +1,9 @@
-use hora::core::ann_index::ANNIndex;
+use hora::core::ann_index::{ANNIndex, SerializableIndex};
 use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Normal};
 
 pub fn demo() {
-    let n = 1000000;
+    let n = 1000;
     let dimension = 64;
 
     // make sample points
@@ -11,7 +11,7 @@ pub fn demo() {
     let mut samples = Vec::with_capacity(n);
     let normal = Normal::new(0.0, 10.0).unwrap();
     for _i in 0..n {
-        let mut sample = Vec::with_capacity(dimension);
+        let mut sample = Vdec::with_capacity(dimension);
         for _j in 0..dimension {
             sample.push(normal.sample(&mut rand::thread_rng()));
         }
@@ -45,4 +45,8 @@ pub fn demo() {
         target,
         index.search(&samples[target], 10) // search for k nearest neighbors
     );
+
+    // save index
+    println!("Saving index");
+    hora::index::hnsw_idx::HNSWIndex::dump(&mut index, "hnsw_index").unwrap();
 }

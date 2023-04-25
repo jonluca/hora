@@ -1,5 +1,8 @@
 use crate::core::metrics;
 use crate::core::node;
+use std::io::{Read};
+use std::fs::File;
+use std::io::Write;
 
 use serde::de::DeserializeOwned;
 
@@ -18,7 +21,7 @@ use serde::de::DeserializeOwned;
 ///    bf_idx.add_node(&core::node::Node::<E, usize>::new_with_idx(&embs[i], i)); // add index
 /// }
 /// bf_idx.build(core::metrics::Metric::Euclidean).unwrap(); // build up index
-/// println!("{embedding {}'s nearest neighbor is {}}", 0, bf_idx.search(embs[0]);
+/// println!("{embedding {}'s nearest neighbor is {}}", 0, bf_idx.search(embs[0]));
 /// ```
 ///
 
@@ -145,14 +148,38 @@ pub trait SerializableIndex<
 {
     /// load file with path
     fn load(_path: &str) -> Result<Self, &'static str>
-    where
-        Self: Sized,
+        where
+            Self: Sized,
+    {
+        let file = File::open(_path).unwrap_or_else(|_| panic!("unable to open file {:?}", _path));
+        return Self::load_from_reader(file)
+    }
+
+    fn load_from_reader<R: Read>(_: R) -> Result<Self, &'static str>
+        where
+            Self: Sized,
     {
         Err("empty implementation")
     }
 
     /// dump the file into the path
-    fn dump(&mut self, _path: &str) -> Result<(), &'static str> {
+    fn dump(&mut self, path: &str) -> Result<(), &'static str> {
+        let encoded_bytes = Self::dump_bin(self).unwrap();
+        let mut file = File::create(path).unwrap();
+        file.write_all(&encoded_bytes)
+            .unwrap_or_else(|_| panic!("unable to write file {:?}", path));
+        Result::Ok(())
+    }
+    /// load file with path
+    fn load_bin(_serialized: &Vec<u8>) -> Result<Self, &'static str>
+        where
+            Self: Sized,
+    {
+        Err("empty implementation")
+    }
+
+    /// dump the file into the path
+    fn dump_bin(&mut self) -> Result<Vec<u8>, &'static str> {
         Err("empty implementation")
     }
 }
