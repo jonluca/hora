@@ -3,7 +3,7 @@ authors = ["aljun <gagasalamer@outlook.com>", "moonlight", "jonluca <hora@jonlu.
 edition = "2021"
 license = "Apache-2.0"
 name = "hora-new"
-version = "0.0.1"
+version = "0.0.2"
 
 description = "Hora Search Everywhere"
 homepage = "https://horasearch.com"
