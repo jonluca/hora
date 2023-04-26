@@ -1,6 +1,6 @@
 use crate::core::metrics;
 use crate::core::node;
-use std::io::{Read};
+use std::io::{Read, Cursor};
 use std::fs::File;
 use std::io::Write;
 
@@ -175,7 +175,8 @@ pub trait SerializableIndex<
         where
             Self: Sized,
     {
-        Err("empty implementation")
+        let cursor = Cursor::new(bin);
+        Self::load_from_reader(cursor)
     }
 
     /// dump the file into the path
